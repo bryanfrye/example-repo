@@ -1,8 +1,9 @@
+---
 # Managed by repo-deploy
 
 name: Deploy Infrastructure
 
-on:
+'on':
   push:
     branches: [main]
   workflow_dispatch:
@@ -75,7 +76,7 @@ jobs:
 
       - name: Configure Credentials
         run: echo "Configure credentials for $PROVIDER (stub)"
-      
+
       - name: Deploy
         run: |
           git clone https://github.com/bryanfrye/repo-deploy.git
