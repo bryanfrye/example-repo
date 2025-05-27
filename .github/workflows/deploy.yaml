@@ -65,7 +65,7 @@ jobs:
           echo "Running linters: $LINTERS"
           ./scripts/run_linters.sh
 
-  check-repo-version:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -94,18 +94,18 @@ jobs:
             exit 1
           fi
 
-  deploy:
-    name: Deploy to $PROVIDER
-    runs-on: ubuntu-latest
-    environment: production
-    needs: lint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Deploy to $PROVIDER
+        runs-on: ubuntu-latest
+        environment: production
+        needs: lint
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v3
 
-      - name: Configure Credentials
-        run: echo "Configure credentials for $PROVIDER (stub)"
+          - name: Configure Credentials
+            run: echo "Configure credentials for $PROVIDER (stub)"
 
-      - name: Deploy
-        run: |
-          ./repo-deploy/scripts/deploy_stacks.sh
+          - name: Deploy
+            run: |
+              git clone https://github.com/bryanfrye/repo-deploy.git
+              ./repo-deploy/scripts/deploy_stacks.sh
