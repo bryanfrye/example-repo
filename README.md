@@ -65,8 +65,17 @@ make update - update the repo to the latest version of repo-deploy pulling any c
 - GitHub Actions enabled for CI/CD workflows
 
 ## TODO
-- [ ] CloudFormation testing of various scenarios
 - [ ] Add Ansible playbooks for LAMP stack configuration
 - [ ] Implement logging and monitoring hooks
 - [ ] Add more comprehensive CI/CD workflows
 - [ ] Document and implement security hardening steps
+- [ ] Expand with additional resources (RDS, S3, etc.)
+- [ ] Additional default parameter files for CloudFormation stacks to make deployment easier
+
+## Additional TODO
+- [ ] Azure and GCP support within the same repo-deploy structure
+- [ ] Add additional IaC examples (e.g., Terraform, Pulumi)
+- [ ] Add more complex CI/CD workflows (e.g., multi-stage deployments, blue-green deployments)
+- [ ] Puppet/Bolt/Chef support for configuration management
+- [ ] Add more comprehensive observability (e.g., CloudWatch, CloudTrail, ELK stack)
+- [ ] Containerization support (e.g., Docker, Kubernetes)
