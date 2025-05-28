@@ -1,3 +1,4 @@
+---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: EC2 + ALB with HTTPS forwarding
 
@@ -129,20 +130,6 @@ Resources:
       Tags:
         - Key: Name
           Value: AppServer2
-
-  Register1:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TargetGroup
-      TargetId: !Ref EC2Instance1
-      Port: 443
-
-  Register2:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TargetGroup
-      TargetId: !Ref EC2Instance2
-      Port: 443
 
 Outputs:
   ALBDNS:
