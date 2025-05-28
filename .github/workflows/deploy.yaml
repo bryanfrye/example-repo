@@ -28,7 +28,8 @@ jobs:
 
       - name: Install requested linters
         run: |
-          for linter in $LINTERS; do
+          LINTER_LIST=$(echo "$LINTERS" | sed 's/,$//')
+          for linter in ${LINTER_LIST//,/ }; do
             case "$linter" in
               yaml)
                 pip install yamllint
@@ -37,7 +38,10 @@ jobs:
                 pip install cfn-lint
                 ;;
               cfn_nag)
-                gem install cfn-nag
+                sudo apt-get update
+                sudo apt-get install -y ruby \
+                ruby-dev build-essential
+                gem install cfn_nag
                 ;;
               shell)
                 sudo apt-get update && sudo apt-get install -y shellcheck
@@ -59,6 +63,9 @@ jobs:
                 ;;
               markdown)
                 npm install -g markdownlint-cli
+                ;;
+              *)
+                echo "Unknown linter: $linter"
                 ;;
             esac
           done
