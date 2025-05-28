@@ -45,6 +45,7 @@ This repo is designed to demonstrate:
 ├── .linters                   # Enabled linters for CI
 ├── .repo-deploy-version       # Tracked repo-deploy version
 └── Makefile                   # Local runner commands
+```
 
 ## Deployment
 To test deployment locally before commiting, you can use the provided Makefile commands:
