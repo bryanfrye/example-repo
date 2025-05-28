@@ -20,11 +20,11 @@ jobs:
         id: read-linters
         run: |
           if [[ -f .linters ]]; then
-            LINTERS=\$(cat .linters | tr '\n' ',')
+            LINTERS=$(cat .linters | tr '\n' ',')
           else
             LINTERS="none"
           fi
-          echo "LINTERS=\$LINTERS" >> \$GITHUB_ENV
+          echo "LINTERS=$LINTERS" >> $GITHUB_ENV
 
       - name: Install requested linters
         run: |
@@ -35,6 +35,9 @@ jobs:
                 ;;
               cloudformation)
                 pip install cfn-lint
+                ;;
+              cfn_nag)
+                gem install cfn-nag
                 ;;
               shell)
                 sudo apt-get update && sudo apt-get install -y shellcheck
@@ -67,6 +70,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    needs: lint
+    environment: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,7 +91,6 @@ jobs:
           echo "🔒 Current: $CURRENT"
           echo "🌐 Latest : $LATEST"
 
-
           if [[ "$CURRENT" != "$LATEST" ]]; then
             echo "❌ Repo is using an outdated repo-deploy config."
             echo "Please re-bootstrap or run the sync script"
@@ -94,18 +98,7 @@ jobs:
             exit 1
           fi
 
-      - name: Deploy to $PROVIDER
-        runs-on: ubuntu-latest
-        environment: production
-        needs: lint
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v3
-
-          - name: Configure Credentials
-            run: echo "Configure credentials for $PROVIDER (stub)"
-
-          - name: Deploy
-            run: |
-              git clone https://github.com/bryanfrye/repo-deploy.git
-              ./repo-deploy/scripts/deploy_stacks.sh
+      - name: Deploy
+        run: |
+          git clone https://github.com/bryanfrye/repo-deploy.git
+          ./repo-deploy/scripts/deploy_stacks.sh
