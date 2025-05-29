@@ -39,6 +39,8 @@ Resources:
             reason: "ALB security group allows traffic from anywhere"
           - id: W2
             reason: "ALB security group allows traffic from anywhere"
+          - id: W40
+            reason: "Allow traffic outbound everywhere"
     Properties:
       GroupDescription: ALB Security Group
       VpcId: !Ref VpcId
