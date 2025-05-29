@@ -57,6 +57,11 @@ Resources:
 
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W40
+            reason: "Allow traffic outbound everywhere"
     Properties:
       GroupDescription: EC2 Security Group
       VpcId: !Ref VpcId
