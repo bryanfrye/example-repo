@@ -123,6 +123,8 @@ jobs:
             echo "🔧 Installing dependencies for $provider / $role"
 
             case "$provider" in
+              aws)
+                ;;
               azure)
                 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
                 ;;
