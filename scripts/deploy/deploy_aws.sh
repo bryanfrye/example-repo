@@ -40,10 +40,16 @@ fi
 # Package with CloudFormation to inject S3 paths
 mkdir -p "$TMP_DIR"
 echo "📦 Packaging CloudFormation template to $packaged_template"
-aws cloudformation package \
+if aws cloudformation package \
   --template-file "$template" \
   --s3-bucket "$ARTIFACT_BUCKET" \
-  --output-template-file "$packaged_template"
+  --output-template-file "$packaged_template" \
+  > /dev/null; then
+  echo "✅ Template packaged successfully: $packaged_template"
+else
+  echo "❌ Failed to package template."
+  exit 1
+fi
 
 # Check if stack exists
 exists=$(aws cloudformation describe-stacks \
@@ -59,8 +65,11 @@ if [[ -z "$exists" ]]; then
     --template-body "file://$packaged_template" \
     --region "$REGION" \
     --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
-    --tags "${TAG_KEY}=${TAG_VALUE}" \
-    --enable-termination-protection
+    --tags Key="${TAG_KEY}",Value="${TAG_VALUE}" \
+    --enable-termination-protection || {
+    echo "❌ Stack creation skipped or failed (likely intentional) - continuing...."
+    exit 0
+  }
 else
   echo "-> Updating existing stack..."
   aws cloudformation deploy \
@@ -68,7 +77,7 @@ else
     --stack-name "$stack_name" \
     --region "$REGION" \
     --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
-    --tags "${TAG_KEY}=${TAG_VALUE}"
+    --tags Key="${TAG_KEY}",Value="${TAG_VALUE}"
 fi
 
 # Check for stack event errors

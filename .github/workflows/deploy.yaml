@@ -124,7 +124,12 @@ jobs:
 
             case "$provider" in
               aws)
-                sudo apt-get install -y awscli
+                echo "Installing AWS CLI v2..."
+                curl -s \
+                  "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" \
+                  -o "awscliv2.zip"
+                unzip -q awscliv2.zip
+                sudo ./aws/install
                 ;;
               azure)
                 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -144,15 +149,4 @@ jobs:
             esac
           done
       - name: Deploy
-        run: |
-          echo "🚀 Deploying infrastructure..."
-          for stage in $(echo "$STAGES" | tr ',' '\n'); do
-            provider="${stage%%.*}
-            role="${stage#*.}"
-            script="./repo-deploy/scripts/deploy_${provider}.sh"
-            if [[ -x "$script" ]]; then
-              "$script" "$role"
-            else
-              echo "❌ No deploy script found for $provider"
-            fi
-          done
+        run: bash scripts/deploy_pipeline.sh
