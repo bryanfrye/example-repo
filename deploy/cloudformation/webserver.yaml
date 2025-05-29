@@ -51,13 +51,16 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+          Description: Allow HTTP traffic
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+          Description: Allow HTTPS traffic
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic
 
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -66,6 +69,8 @@ Resources:
         rules_to_suppress:
           - id: W40
             reason: "Allow traffic outbound everywhere"
+          - id: W5
+            reason: "Instance security group allows outbound traffic everywhere"
     Properties:
       GroupDescription: EC2 Security Group
       VpcId: !Ref VpcId
@@ -74,9 +79,11 @@ Resources:
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: !Ref ALBSecurityGroup
+          Description: Allow HTTPS traffic from ALB
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic
 
   AccessLogBucket:
     Type: AWS::S3::Bucket
