@@ -4,4 +4,5 @@
 region = "us-east-1"
 tag_key = "Project"
 tag_value = "example-repo"
-stages = [ "webserver" ]
+stages = [ "aws.webserver", "ansible.webserver" ]
+artifact_bucket = "cf-artifacts-example-repo"

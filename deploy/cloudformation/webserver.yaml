@@ -32,6 +32,13 @@ Parameters:
 Resources:
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W9
+            reason: "ALB security group allows traffic from anywhere"
+          - id: W2
+            reason: "ALB security group allows traffic from anywhere"
     Properties:
       GroupDescription: ALB Security Group
       VpcId: !Ref VpcId
@@ -44,6 +51,9 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
 
   InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -55,6 +65,42 @@ Resources:
           FromPort: 443
           ToPort: 443
           SourceSecurityGroupId: !Ref ALBSecurityGroup
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+  AccessLogBucket:
+    Type: AWS::S3::Bucket
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: "No need to log this bucket access"
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-alb-logs"
+      LifecycleConfiguration:
+        Rules:
+          - Status: Enabled
+            ExpirationInDays: 30
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  AccessLogBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AccessLogBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "elasticloadbalancing.amazonaws.com"
+            Action: "s3:PutObject"
+            Resource: !Sub "${AccessLogBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                "AWS:SourceAccount": !Ref "AWS::AccountId"
 
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -73,15 +119,26 @@ Resources:
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: EC2AppALB
       Scheme: internet-facing
       Subnets: !Ref SubnetIds
       SecurityGroups:
         - !Ref ALBSecurityGroup
       Type: application
+      LoadBalancerAttributes:
+        - Key: access_logs.s3.enabled
+          Value: "true"
+        - Key: access_logs.s3.bucket
+          Value: !Ref AccessLogBucket
+        - Key: access_logs.s3.prefix
+          Value: "alb-logs"
 
   ALBListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W56
+            reason: Redirecting HTTP to HTTPS is a best practice for security.
     Properties:
       LoadBalancerArn: !Ref ALB
       Port: 80
@@ -101,6 +158,7 @@ Resources:
       Protocol: HTTPS
       Certificates:
         - CertificateArn: !Ref ACMCertArn
+      SslPolicy: ELBSecurityPolicy-TLS-1-2-2017-01
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
