@@ -41,6 +41,8 @@ Resources:
             reason: "ALB security group allows traffic from anywhere"
           - id: W40
             reason: "Allow traffic outbound everywhere"
+          - id: W5
+            reason: "ALB security group allows traffic from anywhere"
     Properties:
       GroupDescription: ALB Security Group
       VpcId: !Ref VpcId
@@ -64,6 +66,8 @@ Resources:
         rules_to_suppress:
           - id: W40
             reason: "Allow traffic outbound everywhere"
+          - id: W5
+            reason: "Instance security group allows traffic outbound everywhere"
     Properties:
       GroupDescription: EC2 Security Group
       VpcId: !Ref VpcId
